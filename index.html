@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Шмякдекс — Образовательная игра</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+
+  <!-- Name entry screen -->
+  <div id="name-screen">
+    <div id="name-card">
+      <div id="name-card-logo">🏢</div>
+      <div id="name-card-title">Добро пожаловать в Шмякдекс</div>
+      <div id="name-card-subtitle">Как тебя зовут?</div>
+      <input id="name-input" type="text" maxlength="16" placeholder="Введи своё имя" autocomplete="off" spellcheck="false" />
+      <div id="name-error" class="hidden">Имя не может быть пустым</div>
+      <button id="name-submit">Начать →</button>
+    </div>
+  </div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div id="hud-name">👨‍💻 <span id="hud-player-name">Игрок</span></div>
+    <div id="hud-progress">⚡ Задания: <span id="hud-tasks">0/3</span></div>
+    <div id="hud-hint"></div>
+  </div>
+
+  <!-- Interaction prompt -->
+  <div id="interact-prompt" class="hidden">
+    <span>Нажми <kbd>E</kbd> для взаимодействия</span>
+  </div>
+
+  <!-- Dialog box -->
+  <div id="dialog-overlay" class="hidden">
+    <div id="dialog-box">
+      <div id="dialog-avatar"></div>
+      <div id="dialog-content">
+        <div id="dialog-speaker"></div>
+        <div id="dialog-text"></div>
+        <div id="dialog-actions">
+          <button id="dialog-next">Далее →</button>
+          <button id="dialog-task" class="hidden">Открыть компьютер 💻</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Computer UI — 3-screen flow -->
+  <div id="computer-overlay" class="hidden">
+    <div id="computer-monitor-bezel">
+      <div id="computer-screen-ring">
+    <div id="computer-window">
+
+      <!-- ── Title bar ── -->
+      <div id="computer-titlebar">
+        <div id="titlebar-left">
+          <div id="titlebar-dots">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+          </div>
+          <nav id="computer-breadcrumb">
+            <span id="bc-home" class="bc-item bc-active">🏠 Шмякдекс</span>
+            <span class="bc-sep hidden">›</span>
+            <span id="bc-module" class="bc-item hidden"></span>
+            <span class="bc-sep bc-sep2 hidden">›</span>
+            <span id="bc-task" class="bc-item hidden"></span>
+          </nav>
+        </div>
+        <div id="titlebar-right">
+          <button id="computer-settings" aria-label="Настройки">⚙️</button>
+          <button id="computer-close" aria-label="Закрыть">✕</button>
+        </div>
+      </div>
+
+      <!-- ── Settings panel ── -->
+      <div id="settings-panel" class="hidden">
+        <div id="settings-card">
+          <div id="settings-header">
+            <span id="settings-title">⚙️ Настройки</span>
+            <button id="settings-close">✕</button>
+          </div>
+          <div id="settings-body">
+            <div class="settings-section">
+              <div class="settings-section-title">Прогресс</div>
+              <div class="settings-row">
+                <div class="settings-row-info">
+                  <div class="settings-row-label">Сбросить прогресс</div>
+                  <div class="settings-row-desc">Удалит все выполненные задания. Онбординг запустится заново.</div>
+                </div>
+                <button id="settings-reset-btn" class="settings-btn settings-btn-danger">Сбросить</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           SCREEN 1 — Module select (home)
+      ══════════════════════════════════════ -->
+      <div id="screen-home" class="computer-screen">
+        <div id="home-hero">
+          <div id="home-avatar">👨‍💻</div>
+          <div id="home-greeting">
+            <div id="home-title">Добро пожаловать, Дима!</div>
+            <div id="home-subtitle">Выбери модуль для изучения</div>
+          </div>
+          <div id="home-stats">
+            <div class="stat-chip"><span class="stat-icon">✅</span><span id="home-done">0/3</span></div>
+          </div>
+        </div>
+        <div id="module-grid"></div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           SCREEN 2 — Kanban board (task select)
+      ══════════════════════════════════════ -->
+      <div id="screen-kanban" class="computer-screen hidden">
+        <div id="kanban-header">
+          <button id="kanban-back" class="nav-back">← Назад</button>
+          <div id="kanban-title"></div>
+          <div id="kanban-meta"></div>
+        </div>
+        <div id="kanban-board">
+          <div class="kanban-col" id="col-todo">
+            <div class="kanban-col-header">
+              <span class="col-dot col-dot-todo"></span>
+              <span class="col-title">К выполнению</span>
+              <span class="col-count" id="count-todo">0</span>
+            </div>
+            <div class="kanban-cards" id="cards-todo"></div>
+          </div>
+          <div class="kanban-col" id="col-inprogress">
+            <div class="kanban-col-header">
+              <span class="col-dot col-dot-progress"></span>
+              <span class="col-title">В работе</span>
+              <span class="col-count" id="count-progress">0</span>
+            </div>
+            <div class="kanban-cards" id="cards-inprogress"></div>
+          </div>
+          <div class="kanban-col" id="col-done">
+            <div class="kanban-col-header">
+              <span class="col-dot col-dot-done"></span>
+              <span class="col-title">Выполнено</span>
+              <span class="col-count" id="count-done">0</span>
+            </div>
+            <div class="kanban-cards" id="cards-done"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           SCREEN 3 — Task editor
+      ══════════════════════════════════════ -->
+      <div id="screen-editor" class="computer-screen hidden">
+        <div id="editor-header-bar">
+          <button id="editor-back" class="nav-back">← К доске</button>
+          <div id="editor-task-title"></div>
+          <div id="editor-task-meta">
+          </div>
+        </div>
+
+        <!-- Context + theory strip -->
+        <div id="computer-infobar">
+          <div id="task-context"></div>
+          <div id="task-theory">
+            <div id="theory-header" class="collapsible-header">
+              <span>📖 Теория</span>
+              <span class="arrow">▼</span>
+            </div>
+            <div id="theory-body"></div>
+          </div>
+        </div>
+
+        <!-- Split: editor | preview -->
+        <div id="computer-workspace">
+          <div id="editor-pane">
+            <div id="editor-topbar">
+              <div id="editor-tabs">
+                <div class="editor-tab active">
+                  <span class="tab-icon">📄</span>
+                  <span id="editor-filename">index.html</span>
+                </div>
+              </div>
+              <div id="editor-actions">
+                <button id="run-btn"><span class="btn-icon">▶</span> Запустить</button>
+                <button id="check-btn"><span class="btn-icon">✓</span> Проверить</button>
+              </div>
+            </div>
+            <div id="editor-gutter-wrap">
+              <div id="editor-gutter"></div>
+              <textarea id="code-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+            </div>
+            <div id="editor-statusbar"><span id="task-description"></span></div>
+          </div>
+          <div id="preview-pane">
+            <div id="preview-topbar">
+              <div id="preview-address">
+                <span class="preview-dot"></span>
+                <span id="preview-url">preview://localhost</span>
+              </div>
+              <span id="preview-label">Превью</span>
+            </div>
+            <iframe id="preview-frame" sandbox="allow-scripts"></iframe>
+          </div>
+        </div>
+
+        <!-- Feedback overlay -->
+        <div id="task-feedback" class="hidden">
+          <div id="feedback-card">
+            <div id="feedback-icon"></div>
+            <div id="feedback-text"></div>
+            <div id="feedback-hint" class="hidden"></div>
+            <div id="feedback-btns">
+              <button id="feedback-continue" class="hidden">К доске заданий 🎉</button>
+              <button id="feedback-retry">Попробовать снова</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /computer-window -->
+      </div><!-- /computer-screen-ring -->
+    </div><!-- /computer-monitor-bezel -->
+    <div id="computer-monitor-neck"></div>
+    <div id="computer-monitor-stand"></div>
+  </div>
+
+  <!-- Success notification -->
+  <div id="success-toast" class="hidden">
+    <div id="toast-content"></div>
+  </div>
+
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+  <script type="module" src="game.js"></script>
+</body>
+</html>
