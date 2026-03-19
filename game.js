@@ -156,6 +156,21 @@ const MAT = {
   playerHead: new THREE.MeshStandardMaterial({ color: 0xf0c090, roughness: 0.6 }),
   playerHair: new THREE.MeshStandardMaterial({ color: 0x3a2010, roughness: 0.8 }),
   headphones: new THREE.MeshStandardMaterial({ color: 0x1a2a4a, roughness: 0.5, metalness: 0.3 }),
+  avatarFrame: new THREE.MeshStandardMaterial({ color: 0xf2d7a2, roughness: 0.35, metalness: 0.15 }),
+};
+
+const textureLoader = new THREE.TextureLoader();
+function loadAvatarTexture(path) {
+  const tex = textureLoader.load(path);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+  return tex;
+}
+
+const NPC_AVATAR_TEX = {
+  artem: loadAvatarTexture('./assets/images/artem-avatar.png'),
+  masha: loadAvatarTexture('./assets/images/masha-avatar.png'),
+  sasha: loadAvatarTexture('./assets/images/sasha-avatar.png'),
 };
 
 function box(w, h, d, mat, rx = 0, ry = 0, rz = 0) {
@@ -179,13 +194,6 @@ for (let ix = 0; ix < ROOM_W; ix++) {
     scene.add(tile);
   }
 }
-
-// Carpet runner in center aisle
-const carpetGeo = new THREE.BoxGeometry(4, 0.06, ROOM_D - 1);
-const carpetMesh = new THREE.Mesh(carpetGeo, MAT.carpet);
-carpetMesh.position.set(0, 0.06, 0);
-carpetMesh.receiveShadow = true;
-scene.add(carpetMesh);
 
 // No ceiling, no walls — open isometric view
 
@@ -571,20 +579,39 @@ glow.position.set(2.5, 0.06, 0.5);
 scene.add(glow);
 
 // ── NPC Characters ────────────────────────────────────────────
-function createCharacter(bodyMat, legMat, headMat, hairMat, x, z, rotY = 0, label = '', isPlayer = false, hasHeadphones = false) {
+function createCharacter(bodyMat, legMat, headMat, hairMat, x, z, rotY = 0, label = '', isPlayer = false, hasHeadphones = false, avatarTex = null) {
   const g = new THREE.Group();
+  const rigRefs = {
+    leftLegPivot: null,
+    rightLegPivot: null,
+    leftArmPivot: null,
+    rightArmPivot: null,
+    body: null,
+    headGroup: null,
+    baseBodyY: 1.18,
+    baseHeadY: 1.84,
+    baseBodyRotX: 0,
+    baseBodyRotZ: 0,
+  };
 
   // Legs
-  [-0.13, 0.13].forEach(lx => {
+  [-0.13, 0.13].forEach((lx, i) => {
+    const legPivot = new THREE.Group();
+    legPivot.position.set(lx, 0.78, 0);
+    g.add(legPivot);
+
     const leg = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.52, 0.22), legMat);
-    leg.position.set(lx, 0.52, 0);
+    leg.position.set(0, -0.26, 0);
     leg.castShadow = true;
-    g.add(leg);
+    legPivot.add(leg);
     // Shoe
     const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.28),
       new THREE.MeshStandardMaterial({ color: 0x1a1010, roughness: 0.8 }));
-    shoe.position.set(lx, 0.22, 0.04);
-    g.add(shoe);
+    shoe.position.set(0, -0.56, 0.04);
+    legPivot.add(shoe);
+
+    if (i === 0) rigRefs.leftLegPivot = legPivot;
+    else rigRefs.rightLegPivot = legPivot;
   });
 
   // Body / torso
@@ -592,40 +619,76 @@ function createCharacter(bodyMat, legMat, headMat, hairMat, x, z, rotY = 0, labe
   body.position.set(0, 1.18, 0);
   body.castShadow = true;
   g.add(body);
+  rigRefs.body = body;
+
+  if (isPlayer) {
+    // Hoodie accents make the player model more readable at distance.
+    const pocket = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.18, 0.05),
+      new THREE.MeshStandardMaterial({ color: 0xb6291d, roughness: 0.72 }));
+    pocket.position.set(0, 1.02, 0.2);
+    g.add(pocket);
+
+    [-0.08, 0.08].forEach(dx => {
+      const lace = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 0.18, 8),
+        new THREE.MeshStandardMaterial({ color: 0xf0e6d2, roughness: 0.5 }));
+      lace.position.set(dx, 1.46, 0.18);
+      g.add(lace);
+    });
+  }
 
   // Arms
-  [-0.36, 0.36].forEach(ax => {
+  [-0.36, 0.36].forEach((ax, i) => {
+    const armPivot = new THREE.Group();
+    armPivot.position.set(ax, 1.36, 0);
+    g.add(armPivot);
+
     const arm = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.52, 0.2), bodyMat);
-    arm.position.set(ax, 1.1, 0);
+    arm.position.set(0, -0.26, 0);
     arm.castShadow = true;
-    g.add(arm);
+    armPivot.add(arm);
     // Hand
     const hand = new THREE.Mesh(new THREE.SphereGeometry(0.1, 7, 6), headMat);
-    hand.position.set(ax, 0.8, 0);
-    g.add(hand);
+    hand.position.set(0, -0.56, 0);
+    armPivot.add(hand);
+
+    if (i === 0) rigRefs.leftArmPivot = armPivot;
+    else rigRefs.rightArmPivot = armPivot;
   });
+
+  const headGroup = new THREE.Group();
+  headGroup.position.set(0, 1.84, 0);
+  g.add(headGroup);
+  rigRefs.headGroup = headGroup;
 
   // Neck
   const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.14, 8), headMat);
-  neck.position.set(0, 1.6, 0);
-  g.add(neck);
+  neck.position.set(0, -0.24, 0);
+  headGroup.add(neck);
 
   // Head — rounded box
   const head = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.42, 0.38), headMat);
-  head.position.set(0, 1.88, 0);
+  head.position.set(0, 0.04, 0);
   head.castShadow = true;
-  g.add(head);
+  headGroup.add(head);
+
+  if (isPlayer) {
+    const smile = new THREE.Mesh(new THREE.TorusGeometry(0.065, 0.01, 4, 12, Math.PI),
+      new THREE.MeshStandardMaterial({ color: 0x4a2a22, roughness: 0.6 }));
+    smile.position.set(0, -0.01, 0.2);
+    smile.rotation.z = Math.PI;
+    headGroup.add(smile);
+  }
 
   // Hair
   if (hairMat) {
     const hair = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.2, 0.4), hairMat);
-    hair.position.set(0, 2.06, -0.02);
-    g.add(hair);
+    hair.position.set(0, 0.22, -0.02);
+    headGroup.add(hair);
     // Side hair
     [-0.22, 0.22].forEach(hx => {
       const sideHair = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.28, 0.36), hairMat);
-      sideHair.position.set(hx, 1.9, -0.01);
-      g.add(sideHair);
+      sideHair.position.set(hx, 0.06, -0.01);
+      headGroup.add(sideHair);
     });
   }
 
@@ -633,24 +696,36 @@ function createCharacter(bodyMat, legMat, headMat, hairMat, x, z, rotY = 0, labe
   [-0.1, 0.1].forEach(ex => {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 5),
       new THREE.MeshStandardMaterial({ color: 0x1a1010 }));
-    eye.position.set(ex, 1.9, 0.19);
-    g.add(eye);
+    eye.position.set(ex, 0.06, 0.19);
+    headGroup.add(eye);
   });
 
   // Headphones for player
   if (hasHeadphones) {
     const band = new THREE.Mesh(new THREE.TorusGeometry(0.24, 0.03, 6, 16, Math.PI),
       MAT.headphones);
-    band.position.set(0, 2.1, 0);
+    band.position.set(0, 0.28, 0);
     band.rotation.z = Math.PI;
-    g.add(band);
+    headGroup.add(band);
     [-0.24, 0.24].forEach(hx => {
       const cup = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 0.06, 10),
         MAT.headphones);
-      cup.position.set(hx, 1.88, 0);
+      cup.position.set(hx, 0.06, 0);
       cup.rotation.z = Math.PI / 2;
-      g.add(cup);
+      headGroup.add(cup);
     });
+  }
+
+  // NPC portrait overlay to match UI avatars.
+  if (avatarTex) {
+    const facePlateMat = new THREE.MeshBasicMaterial({ map: avatarTex });
+    const facePlate = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.34), facePlateMat);
+    facePlate.position.set(0, 0.03, 0.202);
+    headGroup.add(facePlate);
+
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(0.37, 0.37, 0.02), MAT.avatarFrame);
+    frame.position.set(0, 0.03, 0.194);
+    headGroup.add(frame);
   }
 
   // Name label sprite
@@ -680,20 +755,57 @@ function createCharacter(bodyMat, legMat, headMat, hairMat, x, z, rotY = 0, labe
   g.position.set(x, 0, z);
   g.rotation.y = rotY;
   g.castShadow = true;
+  if (isPlayer) g.userData.rig = rigRefs;
   scene.add(g);
   return g;
 }
 
 // Boss — dark suit
-const bossNPC = createCharacter(MAT.npcBody[0], MAT.npcLegs[0], MAT.npcHead, MAT.npcHair[0], 5, -2.2, Math.PI, 'Артём (Тимлид)');
+const bossNPC = createCharacter(MAT.npcBody[0], MAT.npcLegs[0], MAT.npcHead, MAT.npcHair[0], 5, -2.2, Math.PI * 2, 'Артём (Тимлид)', false, false, NPC_AVATAR_TEX.artem);
 // Colleague 1 (Masha) — orange top
-const col1NPC = createCharacter(MAT.npcBody[1], MAT.npcLegs[1], MAT.npcHead, MAT.npcHair[1], -5, -1.5, Math.PI * 0.8, 'Маша');
+const col1NPC = createCharacter(MAT.npcBody[1], MAT.npcLegs[1], MAT.npcHead, MAT.npcHair[1], -5, -1.5, Math.PI * 1.8, 'Маша', false, false, NPC_AVATAR_TEX.masha);
 // Colleague 2 (Sasha) — green
-const col2NPC = createCharacter(MAT.npcBody[2], MAT.npcLegs[2], MAT.npcHead, MAT.npcHair[2], -1, -1.5, Math.PI * 1.1, 'Саша');
+const col2NPC = createCharacter(MAT.npcBody[2], MAT.npcLegs[2], MAT.npcHead, MAT.npcHair[2], -1, -1.5, Math.PI * 2.1, 'Саша', false, false, NPC_AVATAR_TEX.sasha);
 
 // Player (Dima) — red hoodie + headphones
-const playerMesh = createCharacter(MAT.playerBody, MAT.playerLegs, MAT.playerHead, MAT.playerHair, 2.5, 2.5, Math.PI, '', false, true);
-const player = { mesh: playerMesh, x: 2.5, z: 2.5, speed: 4 };
+const playerMesh = createCharacter(MAT.playerBody, MAT.playerLegs, MAT.playerHead, MAT.playerHair, 2.5, 2.5, Math.PI, '', true, true);
+const player = { mesh: playerMesh, x: 2.5, z: 2.5, speed: 4, walkPhase: 0, walkBlend: 0, isMoving: false };
+
+function animatePlayerRig(playerState, dt, timeSec) {
+  const rig = playerState.mesh.userData.rig;
+  if (!rig) return;
+
+  const blendTarget = playerState.isMoving ? 1 : 0;
+  playerState.walkBlend = THREE.MathUtils.lerp(playerState.walkBlend, blendTarget, Math.min(1, dt * 10));
+
+  const speedNorm = THREE.MathUtils.clamp(playerState.speed / 4, 0.7, 1.35);
+  if (playerState.isMoving) {
+    playerState.walkPhase += dt * 8.5 * speedNorm;
+  }
+  const phase = playerState.walkPhase;
+  const stride = Math.sin(phase);
+  const bounce = Math.abs(Math.sin(phase * 2));
+  const idle = Math.sin(timeSec * 2.1) * 0.012;
+  const blend = playerState.walkBlend;
+
+  const legSwing = stride * 0.75 * blend;
+  rig.leftLegPivot.rotation.x = legSwing;
+  rig.rightLegPivot.rotation.x = -legSwing;
+
+  const armSwing = -stride * 0.62 * blend;
+  rig.leftArmPivot.rotation.x = armSwing;
+  rig.rightArmPivot.rotation.x = -armSwing;
+  rig.leftArmPivot.rotation.z = -0.08 - 0.04 * blend;
+  rig.rightArmPivot.rotation.z = 0.08 + 0.04 * blend;
+
+  rig.body.position.y = rig.baseBodyY + idle + bounce * 0.05 * blend;
+  rig.body.rotation.x = rig.baseBodyRotX - 0.1 * blend + Math.sin(phase * 2) * 0.025 * blend;
+  rig.body.rotation.z = rig.baseBodyRotZ + Math.sin(phase) * 0.03 * blend;
+
+  rig.headGroup.position.y = rig.baseHeadY + idle * 0.9 + bounce * 0.03 * blend;
+  rig.headGroup.rotation.x = 0.03 * blend;
+  rig.headGroup.rotation.z = -Math.sin(phase) * 0.02 * blend;
+}
 
 // ── Interaction zones ─────────────────────────────────────────
 const INTERACT_ZONES = [
@@ -794,6 +906,8 @@ const clock = new THREE.Clock();
 function animate() {
   requestAnimationFrame(animate);
   const dt = clock.getDelta();
+  const t = Date.now() * 0.001;
+  let isMoving = false;
 
   // Player movement (only when UI closed)
   if (!ui.isAnyUIOpen() && !(window.__onboarding_active)) {
@@ -805,6 +919,7 @@ function animate() {
     if (keys['KeyD'] || keys['ArrowRight']) { dx += 1; dz -= 1; }
 
     if (dx !== 0 || dz !== 0) {
+      isMoving = true;
       const len = Math.sqrt(dx * dx + dz * dz);
       dx /= len; dz /= len;
       const nx = player.x + dx * player.speed * dt;
@@ -818,6 +933,8 @@ function animate() {
       player.mesh.rotation.y = Math.atan2(dx, dz);
     }
   }
+  player.isMoving = isMoving;
+  animatePlayerRig(player, dt, t);
 
   // Camera follow player — maintain fixed isometric angle
   const target = new THREE.Vector3(player.x, 0, player.z);
@@ -843,7 +960,6 @@ function animate() {
   }
 
   // Animate NPC idle bob
-  const t = Date.now() * 0.001;
   [bossNPC, col1NPC, col2NPC].forEach((npc, i) => {
     npc.position.y = Math.sin(t * 0.8 + i * 1.2) * 0.04;
   });
