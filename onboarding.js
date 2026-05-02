@@ -69,6 +69,9 @@ export class OnboardingManager {
     if (step.navigateTo) {
       this._navigateComputer(step.navigateTo);
     }
+    if (step.taskFlowStep) {
+      this.ui._showTaskFlowStep(step.taskFlowStep, step.taskFlowOptions || {});
+    }
 
     if (step.highlight) {
       setTimeout(() => this._applyHighlight(step.highlight), 80);
