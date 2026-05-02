@@ -24,8 +24,10 @@ export function showNameScreen(storageKey, onDone) {
   }
 
   input.focus();
+  let isConfirmed = false;
 
   function confirm() {
+    if (isConfirmed) return;
     const name = input.value.trim();
     if (!name) {
       error.classList.remove('hidden');
@@ -36,6 +38,8 @@ export function showNameScreen(storageKey, onDone) {
 
     error.classList.add('hidden');
     input.classList.remove('input-error');
+    isConfirmed = true;
+    submit.disabled = true;
     localStorage.setItem(storageKey, name);
     screen.style.opacity = '0';
     screen.style.transition = 'opacity 0.3s';
@@ -46,6 +50,7 @@ export function showNameScreen(storageKey, onDone) {
   }
 
   submit.addEventListener('click', confirm);
+  submit.addEventListener('pointerup', confirm);
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') confirm();
   });

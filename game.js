@@ -1,5 +1,5 @@
 // ============================================================
-// GAME.JS — Three.js изометрическая сцена офиса Шмякдекс
+// GAME.JS — Three.js изометрическая сцена офиса Кодликс
 // ============================================================
 import * as THREE from 'three';
 import { UIManager, NPC_DIALOGS } from './ui.js';
@@ -21,6 +21,7 @@ import {
   disposeSceneResources,
 } from './game_parts/lifecycle.js';
 import { buildOfficeScene } from './game_parts/scene-builder.js';
+import { createMobileControls } from './game_parts/mobile-controls.js';
 
 const taskSchemaErrors = validateTasksSchema(TASKS);
 if (taskSchemaErrors.length > 0) {
@@ -86,6 +87,12 @@ window.addEventListener('keydown', e => {
   }
 });
 window.addEventListener('keyup', e => { keys[e.code] = false; });
+
+const mobileControls = createMobileControls({
+  onInteract: () => tryInteract({ ui, player, tasks: TASKS, zones: INTERACTION_ZONES }),
+  isDisabled: () => ui.isAnyUIOpen() || isOnboardingActive(),
+});
+
 // ── Game loop ─────────────────────────────────────────────────
 const animate = createGameLoop({
   renderer,
@@ -99,6 +106,7 @@ const animate = createGameLoop({
   isOnboardingActive,
   getNearZone,
   animatePlayerRig,
+  mobileControls,
 });
 
 // ── Resize ────────────────────────────────────────────────────
@@ -114,7 +122,7 @@ window.addEventListener('beforeunload', () => {
   });
 });
 
-animate(keys);
+animate({ keys, touch: mobileControls.state });
 
 // ── Onboarding — запускаем после старта игры ──────────────────
 onboarding = new OnboardingManager(ui, TASKS);
@@ -128,7 +136,7 @@ if (onboarding.isCompleted()) {
   const allDone = TASKS.every(t => ui.isTaskDone(t.id));
   setTimeout(() => {
     if (allDone) {
-      ui.showDialog('boss', [`С возвращением, ${name}! Все задания выполнены — ты настоящий джун Шмякдекса! 🎉`]);
+      ui.showDialog('boss', [`С возвращением, ${name}! Все задания выполнены — ты настоящий джун Кодликса! 🎉`]);
     } else {
       const nextTask = TASKS.find(t => !ui.isTaskDone(t.id));
       ui.showDialog('boss', [`С возвращением, ${name}! Задания ждут тебя — садись за компьютер и продолжай. 💪`], nextTask?.id ?? null);

@@ -2,6 +2,8 @@
 // CSS TASKS
 // ============================================================
 
+import { findCssRule, hasCssDeclaration } from '../core/task-check-utils.js';
+
 export const CSS_TASKS = [
   // ── CSS ЗАДАНИЕ 1: Синтаксис, селекторы, цвета ────────────
   {
@@ -17,43 +19,55 @@ export const CSS_TASKS = [
       Пора добавить стили! Я покажу тебе основы CSS — это моя любимая тема.»</i><br><br>
       Маша открывает редактор. Начинается CSS-модуль.
     `,
+    introDialog: [
+      'Дима, HTML-страница уже собрана, но выглядит как черновик: всё без цвета, без акцентов и без нормального размера текста.',
+      'В этой задаче ты впервые подключишь CSS-логику: выберешь элементы по селекторам и задашь им свойства.',
+      'Нужно стилизовать заголовок, подзаголовок и обычные абзацы. Это база, с которой начинается почти любая визуальная правка.',
+      'Сначала разберись с селекторами, свойствами и значениями, затем открой код и оживи страницу первыми стилями.',
+    ],
+    brief: 'В <code>&lt;style&gt;</code> задай цвет для <code>h1</code>, цвет для <code>.subtitle</code> и <code>font-size: 16px</code> для <code>p</code>.',
     theory: `
-      <b>Что такое CSS?</b><br><br>
+      <b>CSS — язык внешнего вида страницы</b><br><br>
+      HTML отвечает за смысл и структуру: где заголовок, где абзац, где ссылка. CSS отвечает за то,
+      как эти элементы выглядят: цвет, размер, отступы, фон, расположение на экране. Один и тот же HTML
+      можно сделать строгим, игровым, минималистичным или ярким — меняя только CSS.<br><br>
 
-      CSS (Cascading Style Sheets — каскадные таблицы стилей) — это язык, который описывает
-      <i>внешний вид</i> HTML-элементов. HTML отвечает за структуру, CSS — за красоту.<br><br>
-
-      <b>Синтаксис CSS:</b><br>
+      <b>CSS-правило состоит из трёх частей</b><br>
       <pre><code>селектор {
   свойство: значение;
-  свойство: значение;
 }</code></pre>
+      <code>селектор</code> выбирает элементы на странице;<br>
+      <code>свойство</code> говорит, что именно изменить;<br>
+      <code>значение</code> говорит, на что изменить.<br><br>
 
-      <b>Селектор</b> — указывает, к каким элементам применить стили.<br>
-      <b>Свойство</b> — что именно меняем (цвет, размер, отступ).<br>
-      <b>Значение</b> — на что меняем.<br><br>
-
-      <b>Три вида селекторов:</b><br><br>
-
-      По тегу — применяется ко всем элементам этого тега:<br>
+      <b>Пример:</b><br>
       <pre><code>p {
   color: navy;
+  font-size: 16px;
 }</code></pre>
+      Это значит: «найди все абзацы <code>&lt;p&gt;</code>, сделай текст тёмно-синим и размером 16 пикселей».
+      Каждое объявление заканчивается точкой с запятой. Фигурные скобки показывают, где начинается и
+      заканчивается набор стилей.<br><br>
 
-      По классу — применяется к элементам с этим классом (точка перед именем):<br>
-      <pre><code>.title {
-  color: red;
+      <b>Три базовых селектора</b><br>
+      <code>h1</code> — селектор по тегу. Применится ко всем <code>&lt;h1&gt;</code>:<br>
+      <pre><code>h1 {
+  color: darkblue;
 }</code></pre>
-
-      По id — применяется к одному конкретному элементу (решётка перед именем):<br>
-      <pre><code>#logo {
-  color: green;
+      <code>.subtitle</code> — селектор по классу. Точка означает «найди элементы с class="subtitle"»:<br>
+      <pre><code>.subtitle {
+  color: gray;
 }</code></pre>
+      <code>#logo</code> — селектор по id. Решётка означает «найди элемент с id="logo"». Такой id должен
+      быть уникальным на странице.<br><br>
 
-      <b>Цвета в CSS:</b><br>
-      — Именованные: <code>red</code>, <code>blue</code>, <code>white</code>, <code>black</code>, <code>orange</code><br>
-      — HEX-код: <code>#ff0000</code> (красный), <code>#3b82f6</code> (синий)<br>
-      — RGB: <code>rgb(255, 0, 0)</code> — красный через три канала (красный, зелёный, синий)
+      <b>Цвета в CSS</b><br>
+      Цвет можно записать словом: <code>red</code>, <code>blue</code>, <code>white</code>;<br>
+      HEX-кодом: <code>#ff0000</code>, <code>#3b82f6</code>;<br>
+      RGB-форматом: <code>rgb(255, 0, 0)</code>.<br><br>
+
+      <b>Важно для читабельности:</b> если текст по умолчанию чёрный, цвет заголовка лучше сделать
+      заметно другим. Но не стоит выбирать цвет только потому, что он яркий: текст должен хорошо читаться.
     `,
     description: `
       ✏️ <b>Задание:</b> Оживи страницу «О компании» первыми стилями.<br><br>
@@ -63,7 +77,7 @@ export const CSS_TASKS = [
       3. Для тега <code>p</code> задай <code>font-size: 16px</code>
     `,
     starterCode: `<!-- HTML (не меняй) -->
-<h1>О компании Шмякдекс</h1>
+<h1>О компании Кодликс</h1>
 <p class="subtitle">Делаем интернет лучше с 2010 года</p>
 <p>Наша команда — 500 крутых специалистов со всей страны.</p>
 <p>Мы верим, что технологии меняют мир к лучшему.</p>
@@ -73,14 +87,17 @@ export const CSS_TASKS = [
 
 </style>`,
     check(code) {
-      const hasH1Color = /h1\s*\{[^}]*color\s*:[^;]+;/i.test(code);
-      if (!hasH1Color) return { ok: false, hint: 'Добавь стиль для h1: h1 { color: значение; }' };
+      const h1Block = findCssRule(code, 'h1');
+      if (!h1Block || !hasCssDeclaration(h1Block, 'color', /^(?!black\b|#000(?:000)?\b).+/i))
+        return { ok: false, hint: 'Добавь стиль для h1: h1 { color: значение; } Цвет должен быть не чёрным.' };
 
-      const subtitleColor = /\.subtitle\s*\{[^}]*color\s*:[^;]+;/i.test(code);
-      if (!subtitleColor) return { ok: false, hint: 'Добавь стиль для класса .subtitle: .subtitle { color: значение; }' };
+      const subtitleBlock = findCssRule(code, '\\.subtitle');
+      if (!subtitleBlock || !hasCssDeclaration(subtitleBlock, 'color'))
+        return { ok: false, hint: 'Добавь стиль для класса .subtitle: .subtitle { color: значение; }' };
 
-      const pFontSize = /p\s*\{[^}]*font-size\s*:\s*16px/i.test(code);
-      if (!pFontSize) return { ok: false, hint: 'Добавь для тега p: p { font-size: 16px; }' };
+      const pBlock = findCssRule(code, 'p');
+      if (!pBlock || !hasCssDeclaration(pBlock, 'font-size', /^16px$/i))
+        return { ok: false, hint: 'Добавь для тега p: p { font-size: 16px; }' };
 
       return { ok: true };
     },
@@ -113,47 +130,59 @@ export const CSS_TASKS = [
       Это потому что ты не знаешь про блочную модель CSS. Давай разберёмся!»</i><br><br>
       Маша рисует на листочке квадрат в квадрате в квадрате. Это и есть box model.
     `,
+    introDialog: [
+      'Дима, карточка сотрудника сейчас выглядит слипшейся: текст прижат к краям, рамки нет, ширина не похожа на макет.',
+      'В CSS каждый элемент можно представить как прямоугольник: внутри есть контент, вокруг него padding, затем border и margin.',
+      'Тебе нужно превратить обычный div в аккуратную карточку: добавить воздух, рамку, скругление, внешний отступ и фиксированную ширину.',
+      'После теории зайди в блок .card и настрой его так, чтобы карточка стала похожа на элемент настоящего интерфейса.',
+    ],
+    brief: 'Для <code>.card</code> задай <code>padding: 20px</code>, <code>margin: 16px</code>, рамку <code>solid</code>, <code>border-radius: 12px</code> и <code>width: 280px</code>.',
     theory: `
-      <b>Блочная модель CSS (Box Model)</b><br><br>
+      <b>Блочная модель: каждый элемент — прямоугольник</b><br><br>
+      В CSS почти любой элемент можно представить как коробку. Даже если это просто абзац текста, у него
+      есть содержимое, внутренние отступы, рамка и внешние отступы. Понимание box model помогает делать
+      аккуратные карточки, кнопки, панели и формы.<br><br>
 
-      Каждый HTML-элемент — это прямоугольная коробка. Она состоит из четырёх слоёв,
-      как матрёшка снаружи внутрь:<br><br>
+      <b>Четыре слоя элемента</b><br>
+      <code>content</code> — содержимое: текст, картинка, кнопка;<br>
+      <code>padding</code> — внутренний отступ между содержимым и рамкой;<br>
+      <code>border</code> — рамка вокруг элемента;<br>
+      <code>margin</code> — внешний отступ между элементом и соседями.<br>
+      <pre><code>margin
+  border
+    padding
+      content</code></pre>
 
-      <b>1. margin</b> — внешний отступ. Пространство <i>снаружи</i> элемента, между ним и соседями.<br>
-      <b>2. border</b> — рамка вокруг элемента.<br>
-      <b>3. padding</b> — внутренний отступ. Пространство <i>внутри</i> элемента, между рамкой и содержимым.<br>
-      <b>4. content</b> — само содержимое (текст, картинка).<br><br>
+      <b>Padding и margin часто путают</b><br>
+      <code>padding</code> добавляет «воздух» внутри элемента. Например, текст в карточке не прилипает к
+      краю.<br>
+      <code>margin</code> отодвигает элемент от других элементов снаружи.<br>
+      <pre><code>.card {
+  padding: 20px;
+  margin: 16px;
+}</code></pre>
 
-      <pre><code>┌─────────────── margin ───────────────┐
-│  ┌──────────── border ─────────────┐  │
-│  │  ┌───────── padding ──────────┐ │  │
-│  │  │        content             │ │  │
-│  │  └────────────────────────────┘ │  │
-│  └─────────────────────────────────┘  │
-└───────────────────────────────────────┘</code></pre>
+      <b>Рамка: border</b><br>
+      Рамка обычно задаётся тремя частями: толщина, стиль, цвет.<br>
+      <pre><code>.card {
+  border: 2px solid #3b82f6;
+}</code></pre>
+      <code>2px</code> — толщина, <code>solid</code> — сплошная линия, <code>#3b82f6</code> — цвет.
+      Другие стили рамки: <code>dashed</code> (пунктир), <code>dotted</code> (точки).<br><br>
 
-      <b>Синтаксис:</b><br>
-      <pre><code>/* Одно значение — все стороны одинаково */
-padding: 16px;
+      <b>Скругление углов</b><br>
+      <code>border-radius</code> делает углы мягче. Например, <code>12px</code> хорошо подходит для
+      карточки: она выглядит аккуратно, но не превращается в круг.<br>
+      <pre><code>.card {
+  border-radius: 12px;
+}</code></pre>
 
-/* Два значения — вертикаль | горизонталь */
-padding: 10px 20px;
+      <b>Ширина</b><br>
+      <code>width</code> задаёт ширину элемента. Если карточке дать <code>width: 280px</code>, браузер
+      будет стараться сделать её шириной 280 пикселей.<br><br>
 
-/* Четыре значения — верх | право | низ | лево */
-margin: 10px 20px 10px 20px;</code></pre>
-
-      <b>Рамка (border):</b><br>
-      <pre><code>border: 2px solid #3b82f6;
-/* толщина | стиль | цвет */
-/* стили: solid (сплошная), dashed (пунктир), dotted (точки) */</code></pre>
-
-      <b>Скругление углов:</b><br>
-      <pre><code>border-radius: 8px;   /* все углы */
-border-radius: 50%;   /* круг (если ширина = высота) */</code></pre>
-
-      <b>Ширина и высота:</b><br>
-      <pre><code>width: 300px;
-height: 200px;</code></pre>
+      <b>Практическое правило:</b> для карточки обычно нужны сразу несколько свойств: ширина, внутренний
+      отступ, внешний отступ, рамка и скругление. Только вместе они дают ощущение готового интерфейса.
     `,
     description: `
       ✏️ <b>Задание:</b> Оформи карточку сотрудника по макету.<br><br>
@@ -180,19 +209,18 @@ height: 200px;</code></pre>
   }
 </style>`,
     check(code) {
-      const block = code.match(/\.card\s*\{([^}]*)\}/s);
-      if (!block) return { ok: false, hint: 'Найди блок .card { } и пиши стили внутри него.' };
-      const props = block[1];
+      const props = findCssRule(code, '\\.card');
+      if (!props) return { ok: false, hint: 'Найди блок .card { } и пиши стили внутри него.' };
 
-      if (!/padding\s*:/.test(props))
+      if (!hasCssDeclaration(props, 'padding', /^20px$/i))
         return { ok: false, hint: 'Добавь padding: 20px; внутри .card { }' };
-      if (!/margin\s*:/.test(props))
+      if (!hasCssDeclaration(props, 'margin', /^16px$/i))
         return { ok: false, hint: 'Добавь margin: 16px; внутри .card { }' };
-      if (!/border\s*:/.test(props))
+      if (!hasCssDeclaration(props, 'border', /^(?:[1-3](?:\.0+)?px\s+solid\b|solid\b.*\b[1-3](?:\.0+)?px\b)/i))
         return { ok: false, hint: 'Добавь border, например: border: 2px solid #3b82f6;' };
-      if (!/border-radius\s*:/.test(props))
+      if (!hasCssDeclaration(props, 'border-radius', /^12px$/i))
         return { ok: false, hint: 'Добавь border-radius: 12px; для скруглённых углов.' };
-      if (!/width\s*:/.test(props))
+      if (!hasCssDeclaration(props, 'width', /^280px$/i))
         return { ok: false, hint: 'Добавь width: 280px; чтобы задать ширину карточки.' };
 
       return { ok: true };
@@ -227,33 +255,52 @@ height: 200px;</code></pre>
       Можешь настроить типографику через CSS?»</i><br><br>
       Ты берёшь распечатку. Пора разобраться с текстовыми свойствами CSS.
     `,
+    introDialog: [
+      'Дима, дизайнер прислал требования к тексту для блога. Это не про украшения, а про читаемость.',
+      'Заголовок должен сразу считываться как главный, подзаголовок должен быть спокойнее, а обычные абзацы — легко читаться.',
+      'В этой задаче ты настроишь размер, жирность, курсив, цвет, выравнивание и межстрочный интервал.',
+      'Изучи теорию по типографике и затем приведи текст блога к макету через CSS.',
+    ],
+    brief: 'Настрой типографику: для <code>h1</code> — <code>32px</code>, <code>bold</code>, центр; для <code>.lead</code> — курсив и серый цвет; для <code>p</code> — <code>line-height: 1.7</code>.',
     theory: `
-      <b>Типографика в CSS</b><br><br>
+      <b>Типографика — это удобство чтения</b><br><br>
+      Типографика отвечает за то, как выглядит текст: размер, жирность, курсив, цвет, выравнивание и
+      расстояние между строками. Хорошая типографика не просто «красивая» — она помогает быстрее читать
+      и понимать страницу.<br><br>
 
-      Типографика — это всё, что касается оформления текста. CSS даёт мощные инструменты
-      для управления шрифтами и текстом.<br><br>
+      <b>Размер текста: font-size</b><br>
+      <code>font-size</code> задаёт размер букв. Для обычного текста часто используют около
+      <code>16px</code>, а заголовки делают крупнее, чтобы показать важность.<br>
+      <pre><code>h1 {
+  font-size: 32px;
+}</code></pre>
 
-      <b>Размер и начертание шрифта:</b><br>
-      <pre><code>font-size: 24px;        /* размер шрифта */
-font-weight: bold;      /* жирный (или число: 400, 700, 900) */
-font-style: italic;     /* курсив */
-font-family: Arial, sans-serif; /* гарнитура шрифта */</code></pre>
+      <b>Жирность: font-weight</b><br>
+      <code>font-weight: bold</code> делает текст жирным. Так удобно выделять заголовки и важные слова.
+      В CSS можно встретить и числовые значения: <code>400</code> — обычный текст,
+      <code>700</code> — жирный.<br><br>
 
-      <b>Межстрочный интервал и выравнивание:</b><br>
-      <pre><code>line-height: 1.6;       /* межстрочный интервал (1.5–1.8 — комфортно для чтения) */
-text-align: center;     /* выравнивание: left | center | right | justify */
-letter-spacing: 2px;    /* межбуквенный интервал */
-text-transform: uppercase; /* регистр: uppercase | lowercase | capitalize */</code></pre>
+      <b>Курсив: font-style</b><br>
+      <code>font-style: italic</code> наклоняет текст. Курсив хорошо подходит для подзаголовка, цитаты
+      или короткого пояснения, но им не стоит оформлять большие абзацы: читать будет тяжелее.<br><br>
 
-      <b>Оформление текста:</b><br>
-      <pre><code>text-decoration: underline;    /* подчёркивание */
-text-decoration: none;         /* убрать подчёркивание (у ссылок) */
-text-decoration: line-through; /* зачёркивание */</code></pre>
+      <b>Выравнивание: text-align</b><br>
+      <code>text-align: center</code> выравнивает текст по центру. Это часто используют для главных
+      заголовков. Для длинных абзацев обычно удобнее выравнивание по левому краю.<br><br>
 
-      <b>Единицы измерения для шрифтов:</b><br>
-      — <code>px</code> — пиксели, фиксированный размер<br>
-      — <code>em</code> — относительно размера шрифта родителя (1em = текущий размер)<br>
-      — <code>rem</code> — относительно корневого размера страницы (обычно 16px)
+      <b>Межстрочный интервал: line-height</b><br>
+      Если строки слишком близко, текст выглядит сжатым. <code>line-height</code> задаёт расстояние между
+      строками. Значение <code>1.7</code> означает: высота строки примерно в 1.7 раза больше размера
+      шрифта.<br>
+      <pre><code>p {
+  line-height: 1.7;
+}</code></pre>
+      У <code>line-height: 1.7</code> нет единицы измерения. Это удобно: если размер шрифта изменится,
+      интервал подстроится сам.<br><br>
+
+      <b>Цвет текста</b><br>
+      Серый цвет вроде <code>#555</code> часто используют для второстепенного текста. Он спокойнее
+      чёрного, но всё ещё хорошо читается на белом фоне.
     `,
     description: `
       ✏️ <b>Задание:</b> Настрой типографику для корпоративного блога.<br><br>
@@ -262,7 +309,7 @@ text-decoration: line-through; /* зачёркивание */</code></pre>
       3. Для <code>p</code>: межстрочный интервал <code>line-height: 1.7</code>
     `,
     starterCode: `<!-- HTML (не меняй) -->
-<h1>Корпоративный блог Шмякдекса</h1>
+<h1>Корпоративный блог Кодликса</h1>
 <p class="lead">Истории о технологиях, людях и коде</p>
 <p>Добро пожаловать в наш блог! Здесь мы рассказываем о том,
 как создаём продукты, которыми пользуются миллионы людей каждый день.</p>
@@ -288,26 +335,26 @@ text-decoration: line-through; /* зачёркивание */</code></pre>
   }
 </style>`,
     check(code) {
-      const h1Block = code.match(/h1\s*\{([^}]*)\}/s);
-      const leadBlock = code.match(/\.lead\s*\{([^}]*)\}/s);
-      const pBlock = code.match(/(?<![.#\w])p\s*\{([^}]*)\}/s);
+      const h1Block = findCssRule(code, 'h1');
+      const leadBlock = findCssRule(code, '\\.lead');
+      const pBlock = findCssRule(code, 'p');
 
       if (!h1Block) return { ok: false, hint: 'Найди блок h1 { } и добавь стили внутри.' };
-      if (!/font-size\s*:\s*32px/i.test(h1Block[1]))
+      if (!hasCssDeclaration(h1Block, 'font-size', /^32px$/i))
         return { ok: false, hint: 'Для h1 задай font-size: 32px;' };
-      if (!/font-weight\s*:\s*bold/i.test(h1Block[1]))
+      if (!hasCssDeclaration(h1Block, 'font-weight', /^bold$/i))
         return { ok: false, hint: 'Для h1 задай font-weight: bold;' };
-      if (!/text-align\s*:\s*center/i.test(h1Block[1]))
+      if (!hasCssDeclaration(h1Block, 'text-align', /^center$/i))
         return { ok: false, hint: 'Для h1 задай text-align: center;' };
 
       if (!leadBlock) return { ok: false, hint: 'Найди блок .lead { } и добавь стили.' };
-      if (!/font-style\s*:\s*italic/i.test(leadBlock[1]))
+      if (!hasCssDeclaration(leadBlock, 'font-style', /^italic$/i))
         return { ok: false, hint: 'Для .lead задай font-style: italic;' };
-      if (!/color\s*:/i.test(leadBlock[1]))
+      if (!hasCssDeclaration(leadBlock, 'color'))
         return { ok: false, hint: 'Для .lead задай color: #555; (или любой серый цвет).' };
 
       if (!pBlock) return { ok: false, hint: 'Найди блок p { } и добавь стили.' };
-      if (!/line-height\s*:\s*1\.7/i.test(pBlock[1]))
+      if (!hasCssDeclaration(pBlock, 'line-height', /^1\.7$/i))
         return { ok: false, hint: 'Для p задай line-height: 1.7;' };
 
       return { ok: true };
@@ -341,45 +388,62 @@ text-decoration: line-through; /* зачёркивание */</code></pre>
       Давай добавим фоны — это сразу преобразит страницу!»</i><br><br>
       Ты смотришь на макет. Пора разобраться с фонами в CSS.
     `,
+    introDialog: [
+      'Дима, главная страница пока вся белая, поэтому блоки сливаются и не ощущаются как отдельные части интерфейса.',
+      'Дизайнер хочет тёмную шапку и заметный баннер с градиентом. Это быстрый способ показать структуру и настроение страницы.',
+      'Тебе нужно задать фон, цвет текста и внутренние отступы, чтобы текст не прилипал к краям.',
+      'После теории оформи header и banner так, чтобы страница стала похожа на настоящий промо-блок Кодликса.',
+    ],
+    brief: 'Для <code>.header</code> задай тёмный фон и <code>color: white</code>. Для <code>.banner</code> добавь <code>linear-gradient</code>, <code>color: white</code> и <code>padding: 40px</code>.',
     theory: `
-      <b>Фон в CSS</b><br><br>
+      <b>Фон задаёт настроение блока</b><br><br>
+      Цвет фона помогает разделить страницу на части: шапку, баннер, карточки, предупреждения. Пользователь
+      быстрее понимает структуру, если важные блоки визуально отличаются друг от друга.<br><br>
 
-      CSS позволяет задавать фон несколькими способами.<br><br>
+      <b>Однотонный фон: background-color</b><br>
+      <code>background-color</code> задаёт сплошной цвет фона.<br>
+      <pre><code>.header {
+  background-color: #111827;
+}</code></pre>
+      Для шапки часто выбирают тёмный фон: он создаёт ощущение отдельной верхней панели.<br><br>
 
-      <b>Цвет фона:</b><br>
-      <pre><code>background-color: #1a2a3a;   /* тёмно-синий */
-background-color: white;
-background-color: rgb(255, 200, 100);</code></pre>
-
-      <b>Градиент</b> — плавный переход между цветами:<br>
-      <pre><code>/* Линейный градиент: направление, цвет1, цвет2 */
-background: linear-gradient(to right, #3b82f6, #8b5cf6);
-background: linear-gradient(135deg, #ff6b6b, #feca57);</code></pre>
-
-      <b>Прозрачность через rgba:</b><br>
-      <pre><code>/* rgba(красный, зелёный, синий, прозрачность 0–1) */
-background-color: rgba(0, 0, 0, 0.5);  /* чёрный 50% */
-background-color: rgba(59, 130, 246, 0.2); /* синий 20% */</code></pre>
-
-      <b>Цвет текста на тёмном фоне:</b><br>
-      Если фон тёмный — текст должен быть светлым, иначе ничего не видно:<br>
-      <pre><code>.dark-block {
-  background-color: #1a2a3a;
-  color: white;  /* обязательно! */
+      <b>Цвет текста на фоне: color</b><br>
+      Если фон тёмный, текст должен быть светлым. Иначе он сольётся с фоном, и страницу будет трудно
+      читать.<br>
+      <pre><code>.header {
+  background-color: #111827;
+  color: white;
 }</code></pre>
 
-      <b>opacity</b> — прозрачность всего элемента (0 = невидимый, 1 = непрозрачный):<br>
-      <pre><code>opacity: 0.8;  /* элемент на 80% непрозрачен */</code></pre>
+      <b>Градиент: плавный переход между цветами</b><br>
+      Градиент используют для баннеров, кнопок и выделенных блоков. Он создаёт более живой вид, чем
+      обычный однотонный фон.<br>
+      <pre><code>.banner {
+  background: linear-gradient(135deg, #2563eb, #16a34a);
+}</code></pre>
+      <code>135deg</code> — направление перехода, дальше идут два или больше цвета. Вместо угла можно
+      писать направление: <code>to right</code>, <code>to bottom</code>.<br><br>
+
+      <b>Padding нужен не только карточкам</b><br>
+      Даже красивый фон будет выглядеть плохо, если текст прижат к краям. Поэтому баннеру часто задают
+      внутренний отступ:<br>
+      <pre><code>.banner {
+  padding: 40px;
+}</code></pre>
+
+      <b>Контраст — главное правило</b><br>
+      Дизайн считается хорошим не тогда, когда он максимально яркий, а когда его удобно читать.
+      Тёмный фон + белый текст — простой и надёжный вариант для первого шага.
     `,
     description: `
-      ✏️ <b>Задание:</b> Оформи шапку и баннер главной страницы Шмякдекса.<br><br>
+      ✏️ <b>Задание:</b> Оформи шапку и баннер главной страницы Кодликса.<br><br>
       1. Для <code>.header</code>: тёмный <code>background-color</code> (любой тёмный) и <code>color: white</code><br>
       2. Для <code>.banner</code>: градиент через <code>background: linear-gradient(...)</code> с двумя любыми цветами<br>
       3. Для <code>.banner</code> также задай <code>color: white</code> и <code>padding: 40px</code>
     `,
     starterCode: `<!-- HTML (не меняй) -->
 <div class="header">
-  <h1>Шмякдекс</h1>
+  <h1>Кодликс</h1>
   <p>Лучший поиск в рунете</p>
 </div>
 
@@ -403,21 +467,21 @@ background-color: rgba(59, 130, 246, 0.2); /* синий 20% */</code></pre>
   }
 </style>`,
     check(code) {
-      const headerBlock = code.match(/\.header\s*\{([^}]*)\}/s);
-      const bannerBlock = code.match(/\.banner\s*\{([^}]*)\}/s);
+      const headerBlock = findCssRule(code, '\\.header');
+      const bannerBlock = findCssRule(code, '\\.banner');
 
       if (!headerBlock) return { ok: false, hint: 'Найди блок .header { } и добавь стили.' };
-      if (!/background(-color)?\s*:/i.test(headerBlock[1]))
+      if (!hasCssDeclaration(headerBlock, 'background-color') && !hasCssDeclaration(headerBlock, 'background'))
         return { ok: false, hint: 'Для .header добавь background-color с тёмным цветом.' };
-      if (!/color\s*:\s*(white|#fff|#ffffff)/i.test(headerBlock[1]))
+      if (!hasCssDeclaration(headerBlock, 'color', /^(white|#fff|#ffffff)$/i))
         return { ok: false, hint: 'Для .header добавь color: white; чтобы текст был виден на тёмном фоне.' };
 
       if (!bannerBlock) return { ok: false, hint: 'Найди блок .banner { } и добавь стили.' };
-      if (!/linear-gradient/i.test(bannerBlock[1]))
+      if (!hasCssDeclaration(bannerBlock, 'background', /linear-gradient/i))
         return { ok: false, hint: 'Для .banner добавь градиент: background: linear-gradient(135deg, #цвет1, #цвет2);' };
-      if (!/color\s*:\s*(white|#fff|#ffffff)/i.test(bannerBlock[1]))
+      if (!hasCssDeclaration(bannerBlock, 'color', /^(white|#fff|#ffffff)$/i))
         return { ok: false, hint: 'Для .banner добавь color: white;' };
-      if (!/padding\s*:\s*40px/i.test(bannerBlock[1]))
+      if (!hasCssDeclaration(bannerBlock, 'padding', /^40px$/i))
         return { ok: false, hint: 'Для .banner добавь padding: 40px;' };
 
       return { ok: true };
@@ -451,42 +515,58 @@ background-color: rgba(59, 130, 246, 0.2); /* синий 20% */</code></pre>
       Артём смотрит макет и недоволен. Ты знаешь Flexbox? Это единственное спасение!»</i><br><br>
       Ты слышал это слово раньше. Пора наконец разобраться.
     `,
+    introDialog: [
+      'Дима, на странице команды всё развалилось: карточки идут столбиком, а кнопка в шапке не уходит вправо.',
+      'Это задача не про цвет, а про раскладку. Нужно управлять тем, как элементы стоят относительно друг друга.',
+      'Flexbox включается у родителя и позволяет выстроить элементы в ряд, разнести их по краям, центрировать и переносить на новую строку.',
+      'Разберись с flex-свойствами, затем исправь навигацию и сетку карточек команды.',
+    ],
+    brief: 'Для <code>.nav</code> включи Flexbox, <code>space-between</code> и центрирование. Для <code>.cards</code> включи flex, перенос и <code>gap: 20px</code>. Для <code>.card</code> задай <code>width: 200px</code>.',
     theory: `
-      <b>Flexbox — гибкая система раскладки</b><br><br>
+      <b>Flexbox — способ управлять расположением элементов</b><br><br>
+      В HTML блоки по умолчанию часто идут сверху вниз. Но в интерфейсах нам нужны строки карточек,
+      панели навигации, кнопки по краям, элементы по центру. Для таких задач удобно использовать Flexbox.<br><br>
 
-      Flexbox (Flexible Box) — это способ расположить элементы в строку или столбец
-      и управлять их выравниванием. Это самый популярный инструмент вёрстки в современном вебе.<br><br>
-
-      <b>Включение Flexbox:</b><br>
-      Достаточно написать одно свойство у <i>родительского</i> элемента:<br>
-      <pre><code>.container {
+      <b>Flexbox включается у родителя</b><br>
+      Важно: <code>display: flex</code> пишут не на самих карточках, а на контейнере, внутри которого
+      лежат эти карточки.<br>
+      <pre><code>.cards {
   display: flex;
 }</code></pre>
-      После этого все прямые дочерние элементы выстраиваются в ряд.<br><br>
+      После этого прямые дочерние элементы контейнера становятся flex-элементами и обычно выстраиваются
+      в строку.<br><br>
 
-      <b>Направление:</b><br>
-      <pre><code>flex-direction: row;     /* в строку (по умолчанию) */
-flex-direction: column;  /* в столбец */</code></pre>
+      <b>Главная и поперечная оси</b><br>
+      По умолчанию Flexbox располагает элементы слева направо. Это главная ось. Поперечная ось идёт
+      сверху вниз. Поэтому разные свойства отвечают за разные направления.<br><br>
 
-      <b>Выравнивание по главной оси (горизонталь при row):</b><br>
-      <pre><code>justify-content: flex-start;   /* прижать к началу */
-justify-content: flex-end;     /* прижать к концу */
-justify-content: center;       /* по центру */
-justify-content: space-between; /* равные промежутки между */
-justify-content: space-around;  /* равные промежутки вокруг */</code></pre>
+      <b>justify-content — распределение по главной оси</b><br>
+      <code>justify-content: space-between</code> раздвигает элементы: первый уходит к левому краю,
+      последний — к правому, а свободное место оказывается между ними. Это удобно для шапки сайта:
+      логотип слева, кнопка справа.<br>
+      <pre><code>.nav {
+  display: flex;
+  justify-content: space-between;
+}</code></pre>
 
-      <b>Выравнивание по поперечной оси (вертикаль при row):</b><br>
-      <pre><code>align-items: flex-start;  /* по верхнему краю */
-align-items: center;      /* по центру вертикально */
-align-items: flex-end;    /* по нижнему краю */
-align-items: stretch;     /* растянуть (по умолчанию) */</code></pre>
+      <b>align-items — выравнивание по поперечной оси</b><br>
+      <code>align-items: center</code> выравнивает элементы по центру по высоте. Без этого кнопка и логотип
+      могут выглядеть так, будто стоят на разных уровнях.<br><br>
 
-      <b>Перенос элементов:</b><br>
-      <pre><code>flex-wrap: wrap;    /* переносить на новую строку если не влезают */
-flex-wrap: nowrap;  /* не переносить (по умолчанию) */</code></pre>
+      <b>flex-wrap — перенос на новую строку</b><br>
+      Если карточек много, они могут не поместиться в одну строку. <code>flex-wrap: wrap</code> разрешает
+      переносить карточки ниже, вместо того чтобы сжимать их до нечитаемого размера.<br><br>
 
-      <b>Промежутки между элементами:</b><br>
-      <pre><code>gap: 16px;  /* отступ между всеми элементами */</code></pre>
+      <b>gap — расстояние между элементами</b><br>
+      <code>gap: 20px</code> добавляет одинаковые промежутки между карточками. Это аккуратнее, чем задавать
+      margin каждой карточке отдельно.<br><br>
+
+      <b>Типичная схема:</b><br>
+      <pre><code>.cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}</code></pre>
     `,
     description: `
       ✏️ <b>Задание:</b> Исправь раскладку страницы команды с помощью Flexbox.<br><br>
@@ -496,7 +576,7 @@ flex-wrap: nowrap;  /* не переносить (по умолчанию) */</c
     `,
     starterCode: `<!-- HTML (не меняй) -->
 <nav class="nav">
-  <span class="logo">Шмякдекс</span>
+  <span class="logo">Кодликс</span>
   <button>Войти</button>
 </nav>
 
@@ -541,28 +621,28 @@ flex-wrap: nowrap;  /* не переносить (по умолчанию) */</c
   }
 </style>`,
     check(code) {
-      const navBlock = code.match(/\.nav\s*\{([^}]*)\}/s);
-      const cardsBlock = code.match(/\.cards\s*\{([^}]*)\}/s);
-      const cardBlock = code.match(/\.card\s*\{([^}]*)\}/s);
+      const navBlock = findCssRule(code, '\\.nav');
+      const cardsBlock = findCssRule(code, '\\.cards');
+      const cardBlock = findCssRule(code, '\\.card');
 
       if (!navBlock) return { ok: false, hint: 'Найди блок .nav { } и добавь flex-свойства.' };
-      if (!/display\s*:\s*flex/i.test(navBlock[1]))
+      if (!hasCssDeclaration(navBlock, 'display', /^flex$/i))
         return { ok: false, hint: 'Для .nav добавь display: flex;' };
-      if (!/justify-content\s*:\s*space-between/i.test(navBlock[1]))
+      if (!hasCssDeclaration(navBlock, 'justify-content', /^space-between$/i))
         return { ok: false, hint: 'Для .nav добавь justify-content: space-between;' };
-      if (!/align-items\s*:\s*center/i.test(navBlock[1]))
+      if (!hasCssDeclaration(navBlock, 'align-items', /^center$/i))
         return { ok: false, hint: 'Для .nav добавь align-items: center;' };
 
       if (!cardsBlock) return { ok: false, hint: 'Найди блок .cards { } и добавь flex-свойства.' };
-      if (!/display\s*:\s*flex/i.test(cardsBlock[1]))
+      if (!hasCssDeclaration(cardsBlock, 'display', /^flex$/i))
         return { ok: false, hint: 'Для .cards добавь display: flex;' };
-      if (!/flex-wrap\s*:\s*wrap/i.test(cardsBlock[1]))
+      if (!hasCssDeclaration(cardsBlock, 'flex-wrap', /^wrap$/i))
         return { ok: false, hint: 'Для .cards добавь flex-wrap: wrap;' };
-      if (!/gap\s*:\s*20px/i.test(cardsBlock[1]))
+      if (!hasCssDeclaration(cardsBlock, 'gap', /^20px$/i))
         return { ok: false, hint: 'Для .cards добавь gap: 20px;' };
 
       if (!cardBlock) return { ok: false, hint: 'Найди блок .card { } и задай ширину.' };
-      if (!/width\s*:\s*200px/i.test(cardBlock[1]))
+      if (!hasCssDeclaration(cardBlock, 'width', /^200px$/i))
         return { ok: false, hint: 'Для .card добавь width: 200px;' };
 
       return { ok: true };
@@ -597,51 +677,57 @@ flex-wrap: nowrap;  /* не переносить (по умолчанию) */</c
       Ты вспоминаешь, как на крутых сайтах кнопки плавно меняют цвет при наведении.
       Пора научиться делать то же самое.
     `,
+    introDialog: [
+      'Дима, интерфейс сейчас статичный: кнопки и карточка никак не реагируют на действия пользователя.',
+      'Когда элемент меняется при наведении, пользователь сразу понимает, что с ним можно взаимодействовать.',
+      'Тебе нужно добавить cursor, плавный transition, hover-цвет для кнопок и эффект приподнимания карточки.',
+      'После теории настрой состояния так, чтобы интерфейс стал живее, но без резких скачков.',
+    ],
+    brief: 'Добавь для <code>.btn</code> <code>transition</code> и <code>cursor: pointer</code>, для <code>.btn:hover</code> — новый фон, для <code>.card:hover</code> — <code>translateY(-4px)</code> и тень.',
     theory: `
-      <b>Псевдоклассы CSS</b><br><br>
+      <b>Интерфейс должен реагировать на действия пользователя</b><br><br>
+      Когда кнопка меняет цвет при наведении, а карточка слегка поднимается, пользователь понимает:
+      «на это можно нажать». Такие реакции делают сайт живым и понятным.<br><br>
 
-      Псевдокласс — это особое состояние элемента. Он пишется через двоеточие после селектора:<br>
-      <pre><code>селектор:псевдокласс {
-  свойство: значение;
-}</code></pre>
-
-      <b>Самые важные псевдоклассы:</b><br><br>
-
-      <code>:hover</code> — когда пользователь наводит мышь на элемент:<br>
+      <b>Псевдокласс — состояние элемента</b><br>
+      Псевдокласс пишется после селектора через двоеточие. Он выбирает элемент не просто по имени или
+      классу, а по состоянию.<br>
       <pre><code>.btn:hover {
   background-color: #1d4ed8;
 }</code></pre>
+      <code>:hover</code> срабатывает, когда на элемент навели курсор. Для кнопки это хороший момент
+      изменить цвет фона.<br><br>
 
-      <code>:active</code> — в момент нажатия:<br>
-      <pre><code>.btn:active {
-  transform: scale(0.97);
-}</code></pre>
+      <b>Другие полезные состояния</b><br>
+      <code>:active</code> — момент нажатия;<br>
+      <code>:focus</code> — элемент выбран с клавиатуры или через поле ввода.<br>
+      Эти состояния важны для удобства и доступности интерфейса.<br><br>
 
-      <code>:focus</code> — когда элемент в фокусе (например, поле ввода):<br>
-      <pre><code>input:focus {
-  border-color: #3b82f6;
-  outline: none;
-}</code></pre>
-
-      <b>Плавные переходы — transition:</b><br>
-      Без transition изменения происходят мгновенно. С ним — плавно:<br>
+      <b>cursor: pointer</b><br>
+      Если элемент кликабельный, курсор-стрелка обычно меняется на «руку». Это задаётся так:<br>
       <pre><code>.btn {
-  background-color: #3b82f6;
-  transition: background-color 0.3s ease;
-  /* свойство | длительность | функция */
-}
-
-.btn:hover {
-  background-color: #1d4ed8;
+  cursor: pointer;
 }</code></pre>
 
-      Можно анимировать несколько свойств сразу:<br>
-      <pre><code>transition: all 0.3s ease;</code></pre>
+      <b>transition — плавность изменений</b><br>
+      Без <code>transition</code> цвет или тень меняются мгновенно. С transition изменение выглядит
+      плавным.<br>
+      <pre><code>.btn {
+  transition: all 0.3s ease;
+}</code></pre>
+      <code>all</code> — анимировать все изменяемые свойства;<br>
+      <code>0.3s</code> — длительность 0.3 секунды;<br>
+      <code>ease</code> — естественное ускорение и замедление.<br><br>
 
-      <b>Трансформации:</b><br>
-      <pre><code>transform: scale(1.05);      /* увеличить на 5% */
-transform: translateY(-4px); /* сдвинуть вверх на 4px */
-transform: rotate(45deg);    /* повернуть */</code></pre>
+      <b>transform и box-shadow</b><br>
+      <code>transform: translateY(-4px)</code> сдвигает элемент вверх на 4 пикселя. Минус по оси Y —
+      это вверх.<br>
+      <code>box-shadow</code> добавляет тень. Если карточка приподнялась и получила тень, мозг считывает
+      её как интерактивную поверхность.<br>
+      <pre><code>.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}</code></pre>
     `,
     description: `
       ✏️ <b>Задание:</b> Добавь интерактивность кнопкам и карточкам.<br><br>
@@ -694,24 +780,24 @@ transform: rotate(45deg);    /* повернуть */</code></pre>
   }
 </style>`,
     check(code) {
-      const btnBlock = code.match(/\.btn\s*\{([^}]*)\}/s);
-      const btnHoverBlock = code.match(/\.btn\s*:\s*hover\s*\{([^}]*)\}/s);
-      const cardHoverBlock = code.match(/\.card\s*:\s*hover\s*\{([^}]*)\}/s);
+      const btnBlock = findCssRule(code, '\\.btn');
+      const btnHoverBlock = findCssRule(code, '\\.btn\\s*:\\s*hover');
+      const cardHoverBlock = findCssRule(code, '\\.card\\s*:\\s*hover');
 
       if (!btnBlock) return { ok: false, hint: 'Найди блок .btn { } и добавь свойства.' };
-      if (!/transition\s*:/i.test(btnBlock[1]))
+      if (!hasCssDeclaration(btnBlock, 'transition', /0\.3s/i))
         return { ok: false, hint: 'Для .btn добавь transition: all 0.3s ease;' };
-      if (!/cursor\s*:\s*pointer/i.test(btnBlock[1]))
+      if (!hasCssDeclaration(btnBlock, 'cursor', /^pointer$/i))
         return { ok: false, hint: 'Для .btn добавь cursor: pointer;' };
 
       if (!btnHoverBlock) return { ok: false, hint: 'Добавь блок .btn:hover { } с изменением цвета фона.' };
-      if (!/background(-color)?\s*:/i.test(btnHoverBlock[1]))
+      if (!hasCssDeclaration(btnHoverBlock, 'background-color') && !hasCssDeclaration(btnHoverBlock, 'background'))
         return { ok: false, hint: 'В .btn:hover измени background-color на более тёмный.' };
 
       if (!cardHoverBlock) return { ok: false, hint: 'Добавь блок .card:hover { } с эффектами.' };
-      if (!/transform\s*:\s*translateY/i.test(cardHoverBlock[1]))
+      if (!hasCssDeclaration(cardHoverBlock, 'transform', /translateY\s*\(\s*-4px\s*\)/i))
         return { ok: false, hint: 'В .card:hover добавь transform: translateY(-4px);' };
-      if (!/box-shadow\s*:/i.test(cardHoverBlock[1]))
+      if (!hasCssDeclaration(cardHoverBlock, 'box-shadow'))
         return { ok: false, hint: 'В .card:hover добавь box-shadow, например: box-shadow: 0 8px 24px rgba(0,0,0,0.12);' };
 
       return { ok: true };
@@ -746,50 +832,61 @@ transform: rotate(45deg);    /* повернуть */</code></pre>
       Это позиционирование. Без него не обходится ни один серьёзный проект.»</i><br><br>
       Ты открываешь редактор. Последнее задание CSS-модуля.
     `,
+    introDialog: [
+      'Дима, финальная CSS-задача: нужно управлять элементами не только в потоке страницы, но и слоями поверх интерфейса.',
+      'Шапка вакансий должна оставаться наверху при прокрутке, а бейдж “Горячая” должен висеть в углу карточки.',
+      'Для этого понадобятся fixed, relative, absolute, координаты top/right/left и z-index.',
+      'Сначала разберись, кто относительно чего позиционируется, затем закрепи шапку и поставь бейдж в правый верхний угол карточки.',
+    ],
+    brief: 'Сделай <code>.header</code> фиксированной сверху, <code>.card</code> — относительным контейнером, а <code>.badge</code> — абсолютным бейджем с <code>top: 12px</code> и <code>right: 12px</code>.',
     theory: `
-      <b>Позиционирование в CSS</b><br><br>
+      <b>Позиционирование — точное размещение элементов</b><br><br>
+      Обычно элементы идут в обычном потоке страницы: один за другим, сверху вниз. Но иногда нужно
+      разместить элемент особым образом: закрепить шапку сверху экрана или поставить бейдж в угол
+      карточки. Для этого используют свойство <code>position</code>.<br><br>
 
-      По умолчанию все элементы идут друг за другом в потоке документа.
-      Свойство <code>position</code> позволяет вырвать элемент из потока и разместить его точно.<br><br>
+      <b>static — обычное поведение</b><br>
+      <code>position: static</code> стоит у элементов по умолчанию. Координаты
+      <code>top</code>, <code>left</code>, <code>right</code>, <code>bottom</code> на него не влияют.<br><br>
 
-      <b>Значения position:</b><br><br>
-
-      <code>static</code> — по умолчанию, элемент в обычном потоке.<br><br>
-
-      <code>relative</code> — элемент остаётся в потоке, но можно сдвинуть его относительно
-      его обычного места. Также создаёт контекст для <code>absolute</code>-потомков:<br>
-      <pre><code>.card {
-  position: relative;
-}</code></pre>
-
-      <code>absolute</code> — элемент вырывается из потока и позиционируется относительно
-      ближайшего родителя с <code>position: relative</code>:<br>
-      <pre><code>.badge {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-}</code></pre>
-
-      <code>fixed</code> — элемент фиксируется относительно окна браузера и не двигается при прокрутке:<br>
+      <b>fixed — закрепить относительно окна браузера</b><br>
+      Если шапка должна оставаться сверху даже при прокрутке, используют <code>position: fixed</code>.
+      Такой элемент привязан к окну браузера, а не к месту в документе.<br>
       <pre><code>.header {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
+  z-index: 100;
 }</code></pre>
+      <code>top: 0</code> и <code>left: 0</code> ставят шапку в левый верхний угол,
+      <code>width: 100%</code> растягивает её на всю ширину.<br><br>
 
-      <code>sticky</code> — элемент ведёт себя как relative, пока не достигнет края экрана,
-      потом «прилипает»:<br>
-      <pre><code>.nav {
-  position: sticky;
-  top: 0;
+      <b>relative — создать точку отсчёта</b><br>
+      <code>position: relative</code> часто ставят родителю, чтобы его дочерний элемент с
+      <code>absolute</code> позиционировался внутри него.<br>
+      <pre><code>.card {
+  position: relative;
 }</code></pre>
+      Сама карточка при этом остаётся на своём обычном месте.<br><br>
 
-      <b>z-index</b> — порядок наложения элементов. Больше значение — элемент поверх:<br>
-      <pre><code>.modal {
-  position: fixed;
-  z-index: 1000;
+      <b>absolute — точно поставить внутри ближайшего positioned-родителя</b><br>
+      Если у бейджа <code>position: absolute</code>, а у карточки <code>position: relative</code>, то
+      координаты бейджа считаются от карточки.<br>
+      <pre><code>.badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
 }</code></pre>
+      Это значит: «поставь бейдж на 12 пикселей от верхнего и правого края карточки».<br><br>
+
+      <b>z-index — кто лежит сверху</b><br>
+      Когда элементы перекрываются, <code>z-index</code> управляет порядком слоёв. Большее число обычно
+      означает, что элемент выше. Для фиксированной шапки часто задают <code>z-index</code>, чтобы она не
+      оказалась под карточками.<br><br>
+
+      <b>Практическая связка:</b> шапке нужен <code>fixed</code>, карточке — <code>relative</code>, бейджу
+      внутри карточки — <code>absolute</code>.
     `,
     description: `
       ✏️ <b>Задание:</b> Добавь фиксированную шапку и бейдж на карточку вакансии.<br><br>
@@ -799,7 +896,7 @@ transform: rotate(45deg);    /* повернуть */</code></pre>
     `,
     starterCode: `<!-- HTML (не меняй) -->
 <div class="header">
-  <span>Шмякдекс — Вакансии</span>
+  <span>Кодликс — Вакансии</span>
 </div>
 
 <div style="margin-top: 70px; padding: 20px;">
@@ -843,32 +940,32 @@ transform: rotate(45deg);    /* повернуть */</code></pre>
   }
 </style>`,
     check(code) {
-      const headerBlock = code.match(/\.header\s*\{([^}]*)\}/s);
-      const cardBlock = code.match(/\.card\s*\{([^}]*)\}/s);
-      const badgeBlock = code.match(/\.badge\s*\{([^}]*)\}/s);
+      const headerBlock = findCssRule(code, '\\.header');
+      const cardBlock = findCssRule(code, '\\.card');
+      const badgeBlock = findCssRule(code, '\\.badge');
 
       if (!headerBlock) return { ok: false, hint: 'Найди блок .header { } и добавь свойства позиционирования.' };
-      if (!/position\s*:\s*fixed/i.test(headerBlock[1]))
+      if (!hasCssDeclaration(headerBlock, 'position', /^fixed$/i))
         return { ok: false, hint: 'Для .header добавь position: fixed;' };
-      if (!/top\s*:\s*0/i.test(headerBlock[1]))
+      if (!hasCssDeclaration(headerBlock, 'top', /^0(?:px)?$/i))
         return { ok: false, hint: 'Для .header добавь top: 0;' };
-      if (!/left\s*:\s*0/i.test(headerBlock[1]))
+      if (!hasCssDeclaration(headerBlock, 'left', /^0(?:px)?$/i))
         return { ok: false, hint: 'Для .header добавь left: 0;' };
-      if (!/width\s*:\s*100%/i.test(headerBlock[1]))
+      if (!hasCssDeclaration(headerBlock, 'width', /^100%$/i))
         return { ok: false, hint: 'Для .header добавь width: 100%;' };
-      if (!/z-index\s*:/i.test(headerBlock[1]))
+      if (!hasCssDeclaration(headerBlock, 'z-index', /^100$/i))
         return { ok: false, hint: 'Для .header добавь z-index: 100; чтобы шапка была поверх контента.' };
 
       if (!cardBlock) return { ok: false, hint: 'Найди блок .card { } и добавь position: relative;' };
-      if (!/position\s*:\s*relative/i.test(cardBlock[1]))
+      if (!hasCssDeclaration(cardBlock, 'position', /^relative$/i))
         return { ok: false, hint: 'Для .card добавь position: relative; — это нужно чтобы бейдж позиционировался внутри карточки.' };
 
       if (!badgeBlock) return { ok: false, hint: 'Найди блок .badge { } и добавь позиционирование.' };
-      if (!/position\s*:\s*absolute/i.test(badgeBlock[1]))
+      if (!hasCssDeclaration(badgeBlock, 'position', /^absolute$/i))
         return { ok: false, hint: 'Для .badge добавь position: absolute;' };
-      if (!/top\s*:\s*12px/i.test(badgeBlock[1]))
+      if (!hasCssDeclaration(badgeBlock, 'top', /^12px$/i))
         return { ok: false, hint: 'Для .badge добавь top: 12px;' };
-      if (!/right\s*:\s*12px/i.test(badgeBlock[1]))
+      if (!hasCssDeclaration(badgeBlock, 'right', /^12px$/i))
         return { ok: false, hint: 'Для .badge добавь right: 12px;' };
 
       return { ok: true };

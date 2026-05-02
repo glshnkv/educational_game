@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Шмякдекс — Образовательная игра</title>
+  <title>Кодликс — Образовательная игра</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&display=swap">
   <link rel="stylesheet" href="style.css" />
@@ -15,11 +15,11 @@
   <div id="name-screen">
     <div id="name-card">
       <div id="name-card-logo">🏢</div>
-      <div id="name-card-title">Добро пожаловать в Шмякдекс</div>
+      <div id="name-card-title">Добро пожаловать в Кодликс</div>
       <div id="name-card-subtitle">Как тебя зовут?</div>
       <input id="name-input" type="text" maxlength="16" placeholder="Введи своё имя" autocomplete="off" spellcheck="false" />
       <div id="name-error" class="hidden">Имя не может быть пустым</div>
-      <button id="name-submit">Начать →</button>
+      <button id="name-submit" type="button">Начать →</button>
     </div>
   </div>
 
@@ -33,6 +33,21 @@
   <!-- Interaction prompt -->
   <div id="interact-prompt" class="hidden">
     <span>Нажми <kbd>E</kbd> для взаимодействия</span>
+  </div>
+
+  <!-- Mobile controls -->
+  <div id="mobile-controls" class="hidden" aria-hidden="true">
+    <div id="mobile-stick-wrap">
+      <div id="mobile-stick-label">Движение</div>
+      <div id="mobile-stick" role="application" aria-label="Виртуальный джойстик движения">
+        <div id="mobile-stick-ring"></div>
+        <div id="mobile-stick-knob"></div>
+      </div>
+    </div>
+    <button id="mobile-action" type="button" disabled>
+      <span id="mobile-action-icon">↗</span>
+      <span id="mobile-action-label">Подойди ближе</span>
+    </button>
   </div>
 
   <!-- Dialog box -->
@@ -65,7 +80,7 @@
             <span class="dot dot-green"></span>
           </div>
           <nav id="computer-breadcrumb">
-            <span id="bc-home" class="bc-item bc-active">🏠 Шмякдекс</span>
+            <span id="bc-home" class="bc-item bc-active">🏠 Кодликс</span>
             <span class="bc-sep hidden">›</span>
             <span id="bc-module" class="bc-item hidden"></span>
             <span class="bc-sep bc-sep2 hidden">›</span>
@@ -165,49 +180,80 @@
           </div>
         </div>
 
-        <!-- Context + theory strip -->
-        <div id="computer-infobar">
-          <div id="task-context"></div>
-          <div id="task-theory">
-            <div id="theory-header" class="collapsible-header">
-              <span>📖 Теория</span>
-              <span class="arrow">▼</span>
-            </div>
-            <div id="theory-body"></div>
-          </div>
-        </div>
-
-        <!-- Split: editor | preview -->
-        <div id="computer-workspace">
-          <div id="editor-pane">
-            <div id="editor-topbar">
-              <div id="editor-tabs">
-                <div class="editor-tab active">
-                  <span class="tab-icon">📄</span>
-                  <span id="editor-filename">index.html</span>
+        <div id="task-flow">
+          <section id="task-intro-view" class="task-flow-view hidden">
+            <div id="task-intro-shell">
+              <div id="task-intro-lead">
+                <span id="task-intro-avatar">А</span>
+                <div>
+                  <div id="task-intro-role">Тимлид Артём</div>
+                  <div id="task-intro-title">Постановка задачи</div>
                 </div>
               </div>
-              <div id="editor-actions">
-                <button id="run-btn"><span class="btn-icon">▶</span> Запустить</button>
-                <button id="check-btn"><span class="btn-icon">✓</span> Проверить</button>
+              <div id="task-chat-log" aria-live="polite"></div>
+              <div id="task-intro-actions">
+                <button id="task-intro-next">Далее →</button>
               </div>
             </div>
-            <div id="editor-gutter-wrap">
-              <div id="editor-gutter"></div>
-              <textarea id="code-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
-            </div>
-            <div id="editor-statusbar"><span id="task-description"></span></div>
-          </div>
-          <div id="preview-pane">
-            <div id="preview-topbar">
-              <div id="preview-address">
-                <span class="preview-dot"></span>
-                <span id="preview-url">preview://localhost</span>
+          </section>
+
+          <section id="task-theory-view" class="task-flow-view hidden">
+            <div id="task-theory-panel">
+              <div id="task-theory-topline">
+                <div>
+                  <div id="task-theory-kicker">Теория перед практикой</div>
+                  <div id="task-theory-title"></div>
+                </div>
+                <button id="task-theory-close" class="secondary-flow-btn hidden">← К задаче</button>
               </div>
-              <span id="preview-label">Превью</span>
+              <div id="theory-body"></div>
+              <div id="task-theory-actions">
+                <button id="task-theory-next">Перейти к задаче →</button>
+              </div>
             </div>
-            <iframe id="preview-frame" sandbox="allow-scripts"></iframe>
-          </div>
+          </section>
+
+          <section id="task-work-view" class="task-flow-view hidden">
+            <div id="task-work-brief">
+              <div>
+                <div id="task-work-kicker">Практика</div>
+                <div id="task-description"></div>
+              </div>
+              <button id="task-show-theory" class="secondary-flow-btn">📖 Теория</button>
+            </div>
+
+            <!-- Split: editor | preview -->
+            <div id="computer-workspace">
+              <div id="editor-pane">
+                <div id="editor-topbar">
+                  <div id="editor-tabs">
+                    <div class="editor-tab active">
+                      <span class="tab-icon">📄</span>
+                      <span id="editor-filename">index.html</span>
+                    </div>
+                  </div>
+                  <div id="editor-actions">
+                    <button id="run-btn"><span class="btn-icon">▶</span> Запустить</button>
+                    <button id="check-btn"><span class="btn-icon">✓</span> Проверить</button>
+                  </div>
+                </div>
+                <div id="editor-gutter-wrap">
+                  <div id="editor-gutter"></div>
+                  <textarea id="code-editor" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+                </div>
+              </div>
+              <div id="preview-pane">
+                <div id="preview-topbar">
+                  <div id="preview-address">
+                    <span class="preview-dot"></span>
+                    <span id="preview-url">preview://localhost</span>
+                  </div>
+                  <span id="preview-label">Превью</span>
+                </div>
+                <iframe id="preview-frame" sandbox="allow-scripts"></iframe>
+              </div>
+            </div>
+          </section>
         </div>
 
         <!-- Feedback overlay -->

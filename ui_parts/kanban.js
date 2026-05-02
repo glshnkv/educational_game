@@ -50,10 +50,11 @@ export function renderKanban(ui) {
   let nTodo = 0;
   let nProgress = 0;
   let nDone = 0;
+  const activeTaskId = ui.progressStore.getActiveTaskId();
 
   modTasks.forEach((task) => {
     const isDone = !!ui.progress[task.id];
-    const isActive = ui.currentTask && ui.currentTask.id === task.id && !isDone;
+    const isActive = !isDone && activeTaskId === task.id;
     const card = makeTaskCard(ui, task, isDone);
 
     if (isDone) {
@@ -74,6 +75,7 @@ export function renderKanban(ui) {
 }
 
 export function makeTaskCard(ui, task, isDone) {
+  const isActive = !isDone && ui.progressStore.getActiveTaskId() === task.id;
   const tagClass = task.id.startsWith('css')
     ? 'tag-css'
     : task.id.startsWith('js')
@@ -94,7 +96,7 @@ export function makeTaskCard(ui, task, isDone) {
       ${
         isDone
           ? '<span class="task-card-status">✅ Выполнено</span>'
-          : `<button class="task-card-open-btn">Открыть →</button>`
+          : `<button class="task-card-open-btn">${isActive ? 'Продолжить →' : 'Открыть →'}</button>`
       }
     </div>
   `;

@@ -1,5 +1,5 @@
 export const STORAGE_KEYS = {
-  progress: 'shmyakdex_progress',
-  onboardingDone: 'shmyakdex_onboarding_done',
-  playerName: 'shmyakdex_player_name',
+  progress: 'kodlix_progress',
+  onboardingDone: 'kodlix_onboarding_done',
+  playerName: 'kodlix_player_name',
 };

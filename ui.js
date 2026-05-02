@@ -75,8 +75,17 @@ export class UIManager {
     // Editor
     this.editorBack       = document.getElementById('editor-back');
     this.editorTaskTitle  = document.getElementById('editor-task-title');
-    this.taskContext      = document.getElementById('task-context');
-    this.theoryHeader     = document.getElementById('theory-header');
+    this.taskIntroView    = document.getElementById('task-intro-view');
+    this.taskTheoryView   = document.getElementById('task-theory-view');
+    this.taskWorkView     = document.getElementById('task-work-view');
+    this.taskIntroRole    = document.getElementById('task-intro-role');
+    this.taskIntroTitle   = document.getElementById('task-intro-title');
+    this.taskChatLog      = document.getElementById('task-chat-log');
+    this.taskIntroNext    = document.getElementById('task-intro-next');
+    this.taskTheoryTitle  = document.getElementById('task-theory-title');
+    this.taskTheoryClose  = document.getElementById('task-theory-close');
+    this.taskTheoryNext   = document.getElementById('task-theory-next');
+    this.taskShowTheory   = document.getElementById('task-show-theory');
     this.theoryBody       = document.getElementById('theory-body');
     this.taskDescription  = document.getElementById('task-description');
     this.codeEditor       = document.getElementById('code-editor');
@@ -144,11 +153,11 @@ export class UIManager {
       this._showScreen('kanban');
     });
 
-    // Theory toggle
-    this.theoryHeader.addEventListener('click', () => {
-      this.theoryHeader.classList.toggle('open');
-      this.theoryBody.classList.toggle('open');
-    });
+    // Task learning flow
+    this.taskIntroNext.addEventListener('click', () => this._advanceTaskIntro());
+    this.taskTheoryNext.addEventListener('click', () => this._showTaskFlowStep('work'));
+    this.taskTheoryClose.addEventListener('click', () => this._showTaskFlowStep('work'));
+    this.taskShowTheory.addEventListener('click', () => this._showTaskFlowStep('theory', { fromWork: true }));
 
     // Tab in editor
     this.codeEditor.addEventListener('keydown', (e) => {
@@ -270,6 +279,14 @@ export class UIManager {
 
   _checkTask() {
     return checkTask(this);
+  }
+
+  _showTaskFlowStep(step, options) {
+    return this._taskFlowApi?.showStep(step, options);
+  }
+
+  _advanceTaskIntro() {
+    return this._taskFlowApi?.advanceIntro();
   }
 
   // ── Dialog ────────────────────────────────────────────────

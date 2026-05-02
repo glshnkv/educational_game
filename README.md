@@ -56,6 +56,6 @@
 
 ## Хранилище в браузере
 
-- Прогресс: `shmyakdex_progress`
-- Онбординг: `shmyakdex_onboarding_done`
-- Имя игрока: `shmyakdex_player_name`
+- Прогресс: `kodlix_progress`
+- Онбординг: `kodlix_onboarding_done`
+- Имя игрока: `kodlix_player_name`

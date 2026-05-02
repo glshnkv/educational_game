@@ -78,7 +78,7 @@ export function tryInteract({ ui, player, tasks, zones = INTERACTION_ZONES }) {
     if (task) {
       ui._openComputer(task);
     } else {
-      ui.showDialog('boss', ['Все задания выполнены! Ты настоящий джун Шмякдекса! 🎉']);
+      ui.showDialog('boss', ['Все задания выполнены! Ты настоящий джун Кодликса! 🎉']);
     }
     return;
   }

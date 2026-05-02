@@ -12,6 +12,7 @@ export function createGameLoop({
   isOnboardingActive,
   getNearZone,
   animatePlayerRig,
+  mobileControls = null,
 }) {
   const clock = new THREE.Clock();
   const cameraTarget = new THREE.Vector3();
@@ -19,11 +20,13 @@ export function createGameLoop({
   const cameraLookAt = new THREE.Vector3();
   const camOffset = new THREE.Vector3(20, 20, 20);
 
-  return function animate(keys) {
-    requestAnimationFrame(() => animate(keys));
+  return function animate(input) {
+    requestAnimationFrame(() => animate(input));
     const dt = clock.getDelta();
     const t = performance.now() * 0.001;
     let isMoving = false;
+    const keys = input.keys || input;
+    const touch = input.touch || {};
 
     if (!ui.isAnyUIOpen() && !isOnboardingActive()) {
       let dx = 0;
@@ -44,6 +47,10 @@ export function createGameLoop({
       if (keys.KeyD || keys.ArrowRight) {
         dx += 1;
         dz -= 1;
+      }
+      if (touch.touchActive) {
+        dx += touch.touchDx;
+        dz += touch.touchDz;
       }
 
       if (dx !== 0 || dz !== 0) {
@@ -82,6 +89,8 @@ export function createGameLoop({
 
     ui.showInteractPrompt(!!nearZone && !ui.isAnyUIOpen() && !isOnboardingActive());
     ui.setHint(nearZone ? nearZone.label : '');
+    mobileControls?.setActionAvailable(!!nearZone && !ui.isAnyUIOpen() && !isOnboardingActive(), nearZone?.label || '');
+    mobileControls?.setHidden(ui.isAnyUIOpen() || isOnboardingActive());
 
     npcs.forEach((npc, i) => {
       npc.position.y = Math.sin(t * 0.8 + i * 1.2) * 0.04;

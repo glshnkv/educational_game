@@ -6,12 +6,9 @@ export function openEditor(ui, task) {
   ui.bcTask.textContent = task.title;
 
   ui.editorTaskTitle.textContent = task.title;
-  ui.taskContext.innerHTML = sanitizeHTML(task.context);
+  ui.taskTheoryTitle.textContent = task.title;
   ui.theoryBody.innerHTML = sanitizeHTML(task.theory);
-  ui.taskDescription.innerHTML = sanitizeHTML(task.description);
-
-  ui.theoryHeader.classList.remove('open');
-  ui.theoryBody.classList.remove('open');
+  ui.taskDescription.innerHTML = sanitizeHTML(task.brief || task.description);
 
   const saved = ui.progressStore.getTaskCode(task.id);
   ui.codeEditor.value = saved || task.starterCode;
@@ -27,7 +24,69 @@ export function openEditor(ui, task) {
 
   ui.taskFeedback.classList.add('hidden');
   ui._showScreen('editor');
-  requestAnimationFrame(() => runPreview(ui));
+  setupTaskFlow(ui, task);
+}
+
+function setupTaskFlow(ui, task) {
+  const introLines = getIntroLines(task);
+  const wasActive = ui.progressStore.getActiveTaskId() === task.id;
+  let introIndex = 0;
+
+  ui.progressStore.setActiveTask(task.id);
+
+  const showStep = (step, options = {}) => {
+    ui.taskIntroView.classList.toggle('hidden', step !== 'intro');
+    ui.taskTheoryView.classList.toggle('hidden', step !== 'theory');
+    ui.taskWorkView.classList.toggle('hidden', step !== 'work');
+    ui.taskTheoryClose.classList.toggle('hidden', !options.fromWork);
+    ui.taskTheoryNext.textContent = options.fromWork ? 'Вернуться к задаче →' : 'Перейти к задаче →';
+
+    if (step === 'work') {
+      requestAnimationFrame(() => runPreview(ui));
+    }
+  };
+
+  const renderIntro = () => {
+    ui.taskChatLog.innerHTML = '';
+    const visibleLines = introLines.slice(0, introIndex + 1);
+    visibleLines.forEach((line, index) => {
+      const message = document.createElement('div');
+      message.className = `task-chat-message${index === visibleLines.length - 1 ? ' is-latest' : ''}`;
+      message.textContent = line;
+      ui.taskChatLog.appendChild(message);
+    });
+    ui.taskIntroNext.textContent = introIndex >= introLines.length - 1
+      ? 'Перейти к теории →'
+      : 'Далее →';
+    ui.taskChatLog.scrollTop = ui.taskChatLog.scrollHeight;
+  };
+
+  const advanceIntro = () => {
+    if (introIndex < introLines.length - 1) {
+      introIndex++;
+      renderIntro();
+      return;
+    }
+    showStep('theory');
+  };
+
+  ui._taskFlowApi = { showStep, advanceIntro };
+
+  if (!wasActive && introLines.length > 0) {
+    introIndex = 0;
+    renderIntro();
+    showStep('intro');
+    return;
+  }
+
+  showStep('work');
+}
+
+function getIntroLines(task) {
+  if (Array.isArray(task.introDialog)) {
+    return task.introDialog.filter((line) => typeof line === 'string' && line.trim());
+  }
+  return [];
 }
 
 export function updateGutter(ui) {
