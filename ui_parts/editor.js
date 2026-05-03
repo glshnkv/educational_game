@@ -31,38 +31,69 @@ function setupTaskFlow(ui, task) {
   const introLines = getIntroLines(task);
   const wasActive = ui.progressStore.getActiveTaskId() === task.id;
   let introIndex = 0;
+  let playerRepliesCount = 0;
 
   ui.progressStore.setActiveTask(task.id);
 
   const showStep = (step, options = {}) => {
+    const normalizedStep = step === 'intro' && introLines.length === 0
+      ? 'theory'
+      : step;
+
+    if (normalizedStep === 'intro' && (options.resetIntro || !ui.taskChatLog.childElementCount)) {
+      introIndex = 0;
+      playerRepliesCount = 0;
+      renderIntro();
+    }
+
     ui.taskIntroView.classList.toggle('hidden', step !== 'intro');
     ui.taskTheoryView.classList.toggle('hidden', step !== 'theory');
     ui.taskWorkView.classList.toggle('hidden', step !== 'work');
     ui.taskTheoryClose.classList.toggle('hidden', !options.fromWork);
     ui.taskTheoryNext.textContent = options.fromWork ? 'Вернуться к задаче →' : 'Перейти к задаче →';
 
-    if (step === 'work') {
+    if (normalizedStep !== step) {
+      ui.taskIntroView.classList.add('hidden');
+      ui.taskTheoryView.classList.toggle('hidden', normalizedStep !== 'theory');
+      ui.taskWorkView.classList.toggle('hidden', normalizedStep !== 'work');
+    }
+
+    if (normalizedStep === 'work') {
       requestAnimationFrame(() => runPreview(ui));
     }
   };
 
   const renderIntro = () => {
     ui.taskChatLog.innerHTML = '';
-    const visibleLines = introLines.slice(0, introIndex + 1);
-    visibleLines.forEach((line, index) => {
+    const timeline = buildIntroTimeline({
+      introLines,
+      introIndex,
+      playerRepliesCount,
+    });
+
+    timeline.forEach((entry, index) => {
       const message = document.createElement('div');
-      message.className = `task-chat-message${index === visibleLines.length - 1 ? ' is-latest' : ''}`;
-      message.textContent = line;
+      const isLatest = index === timeline.length - 1;
+      message.className = `task-chat-message${entry.author === 'player' ? ' is-player' : ''}${isLatest ? ' is-latest' : ''}`;
+      message.innerHTML = `
+        <div class="task-chat-message-header">
+          <span class="task-chat-message-author">${entry.author === 'player' ? 'Ты' : 'Артём'}</span>
+          <span class="task-chat-message-time">${entry.time}</span>
+        </div>
+        <div class="task-chat-message-body">${entry.text}</div>
+      `;
       ui.taskChatLog.appendChild(message);
     });
+
     ui.taskIntroNext.textContent = introIndex >= introLines.length - 1
       ? 'Перейти к теории →'
-      : 'Далее →';
+      : 'Ответить и дальше →';
     ui.taskChatLog.scrollTop = ui.taskChatLog.scrollHeight;
   };
 
   const advanceIntro = () => {
     if (introIndex < introLines.length - 1) {
+      playerRepliesCount++;
       introIndex++;
       renderIntro();
       return;
@@ -74,6 +105,7 @@ function setupTaskFlow(ui, task) {
 
   if (!wasActive && introLines.length > 0) {
     introIndex = 0;
+    playerRepliesCount = 0;
     renderIntro();
     showStep('intro');
     return;
@@ -87,6 +119,50 @@ function getIntroLines(task) {
     return task.introDialog.filter((line) => typeof line === 'string' && line.trim());
   }
   return [];
+}
+
+function buildIntroTimeline({ introLines, introIndex, playerRepliesCount }) {
+  const timeline = [];
+  const assistantVisibleCount = Math.max(0, Math.min(introIndex + 1, introLines.length));
+  const repliesCount = Math.max(0, Math.min(playerRepliesCount, assistantVisibleCount - 1));
+
+  for (let i = 0; i < assistantVisibleCount; i++) {
+    timeline.push({
+      author: 'lead',
+      text: introLines[i],
+      time: makeIntroTime(timeline.length),
+    });
+
+    if (i < repliesCount) {
+      timeline.push({
+        author: 'player',
+        text: getPlayerReply(i),
+        time: makeIntroTime(timeline.length),
+      });
+    }
+  }
+
+  return timeline;
+}
+
+function getPlayerReply(index) {
+  const replies = [
+    'Принял, смотрю проблему.',
+    'Понял контекст, продолжаем.',
+    'Ок, после теории внесу правки.',
+    'Ясно, беру в работу.',
+  ];
+  return replies[index % replies.length];
+}
+
+function makeIntroTime(index) {
+  const baseHour = 10;
+  const baseMinute = 5;
+  const minute = baseMinute + index;
+  const hour = baseHour + Math.floor(minute / 60);
+  const hh = String(hour % 24).padStart(2, '0');
+  const mm = String(minute % 60).padStart(2, '0');
+  return `${hh}:${mm}`;
 }
 
 export function updateGutter(ui) {

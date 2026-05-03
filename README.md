@@ -43,6 +43,9 @@
 - `npm run validate:tasks` — проверка схемы задач.
 - `npm run test` — автотесты (`node --test`).
 - `npm run check` — полный локальный gate.
+- `npm run validate:js` — валидация структуры и прогрессии JS-модуля.
+- `npm run test:js` — целевые тесты качества JS-заданий.
+- `npm run check:js` — быстрый gate только для JS-модуля.
 
 ## Как добавить новую задачу
 

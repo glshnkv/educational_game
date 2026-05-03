@@ -64,6 +64,8 @@ export function buildOnboardingSteps() {
       text: 'Сейчас открывается первый шаг задачи — чат с тимлидом. По кнопке «Далее» ты читаешь постановку и контекст.',
       highlight: '#task-intro-view',
       navigateTo: 'editor',
+      taskFlowStep: 'intro',
+      taskFlowOptions: { resetIntro: true },
     },
     {
       type: 'highlight',
